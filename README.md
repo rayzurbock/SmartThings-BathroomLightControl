@@ -45,3 +45,5 @@ adjust the timer if it appears that humidity is rising in the room (ie: Shower i
   * General code cleanup (tabs/spacing, commenting, etc)
 * 1.0.2-Beta2
   * Adjusted trending determination threshold from +/- 1% to +/- 0.5%
+* 1.0.2.Beta3
+  * Corrected issue with comparing current light change event with last known status.
