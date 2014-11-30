@@ -32,7 +32,7 @@
  *  The latest version of this file can be found on GitHub at:
  *  http://github.com/rayzurbock/SmartThings-BathroomLightControl
  * 
- *  Version 1.0.2-Beta1 (2014-11-29)
+ *  Version 1.0.2-Beta2 (2014-11-29)
  *  WARNING: This version is in testing
  
  */definition(
@@ -142,7 +142,7 @@ def updated() {
 
 
 def initialize() {
-    state.appversion = "1.0.2-Beta1"
+    state.appversion = "1.0.2-Beta2"
     state.loglevel = 2 //0 = off, 1 = on, 2 = debug
     //Subscribe to device events
     subscribe(lightswitch, "switch", SwitchEvent)
@@ -287,8 +287,8 @@ def MotionEvent(evt) {
 def HumidityEvent(evt) {
     def currentHumidity = Double.parseDouble(evt.value.replace("%", ""))
     state.humiditytrend = "stay"
-    if ((currentHumidity > state.lastHumidity) && (currentHumidity - state.lastHumidity > 1)) { state.humiditytrend = "up" }
-    if ((currentHumidity < state.lastHumidity) && (state.lastHumidity - currentHumidity > 1)) { state.humiditytrend = "down" }
+    if ((currentHumidity > state.lastHumidity) && (currentHumidity - state.lastHumidity > 0.5)) { state.humiditytrend = "up" }
+    if ((currentHumidity < state.lastHumidity) && (state.lastHumidity - currentHumidity > 0.5)) { state.humiditytrend = "down" }
     if (!(state.averageHumidity > 0)) { state.humiditytrend = "stay" } //AverageHumidity hasn't been established yet; stay.
     if (state.loglevel == 2){DEBUG("Humidity Sensor | Current(${currentHumidity}),last(${state.lastHumidity}),trend(${state.humiditytrend})")}
     state.lastHumidity = currentHumidity
