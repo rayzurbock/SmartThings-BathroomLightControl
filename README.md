@@ -43,5 +43,5 @@ adjust the timer if it appears that humidity is rising in the room (ie: Shower i
   * Modified logged data to better detect where we are in code based on Trace/Debug log.
   * Added logging level option in code.  0 = off, 1 = on, 2 = debug.  Configured by changing variable in initialize()
   * General code cleanup (tabs/spacing, commenting, etc)
-*1.0.2-Beta2
+* 1.0.2-Beta2
   * Adjusted trending determination threshold from +/- 1% to +/- 0.5%
