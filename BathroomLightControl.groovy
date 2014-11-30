@@ -32,7 +32,7 @@
  *  The latest version of this file can be found on GitHub at:
  *  http://github.com/rayzurbock/SmartThings-BathroomLightControl
  * 
- *  Version 1.0.2-Beta2 (2014-11-29)
+ *  Version 1.0.2-Beta3 (2014-11-29)
  *  WARNING: This version is in testing
  
  */definition(
@@ -142,7 +142,7 @@ def updated() {
 
 
 def initialize() {
-    state.appversion = "1.0.2-Beta2"
+    state.appversion = "1.0.2-Beta3"
     state.loglevel = 2 //0 = off, 1 = on, 2 = debug
     //Subscribe to device events
     subscribe(lightswitch, "switch", SwitchEvent)
@@ -170,6 +170,7 @@ def initialize() {
     if (state.trigger == null) { state.trigger = "none" }
     if (state.offtime == null) { state.offtime = settings.motionOff * 60 }
     if (state.scheduled == null) { state.scheduled = false }
+    if (state.lightswitchlastValue == null) { state.lightswitchlastValue = lightswitch.latestValue('switch') }
     if (state.loglevel == 2){DEBUG("Initialized")}
     state.installed = true
 }
@@ -184,7 +185,8 @@ def SwitchEvent(evt) {
             if (fanswitch.latestValue("switch") == "on"){fanOff()}
         }
     }
-    if (evt.value == "on" && lightswitch.latestValue("switch") == "off") {
+    //DEBUG("DEBUG: Switch | Current: ${evt.value}, LastValue: ${state.lightswitchlastValue}")
+    if (evt.value == "on" && state.lightswitchlastValue == "off") {
         if (state.trigger == "none") { 
             state.trigger = "manual" 
         }
@@ -246,6 +248,7 @@ def SwitchEvent(evt) {
         if (state.scheduled) { unschedule() }
         state.trigger = "none"
     }
+    state.lightswitchlastValue = lightswitch.latestValue('switch')
 }
 
 
