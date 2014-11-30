@@ -32,7 +32,7 @@
  *  The latest version of this file can be found on GitHub at:
  *  http://github.com/rayzurbock/SmartThings-BathroomLightControl
  * 
- *  Version 1.0.2-Beta3 (2014-11-29)
+ *  Version 1.0.2-Beta5 (2014-11-29)
  *  WARNING: This version is in testing
  
  */definition(
@@ -56,15 +56,14 @@ def appStatus() {
     dynamicPage(name: "appStatus", title: "Status - $app.label"){ 
 	    section{
 	        if (state.installed){
-                if (state.humiditytrend == "up"){ paragraph "Humidity is ${state.lastHumidity}% and rising" }
-                if (state.humiditytrend == "down"){ paragraph "Humidity is ${state.lastHumidity}% and falling" }
-                if (state.humiditytrend == "stay"){ paragraph "Humidity is ${state.lastHumidity}% and staying" }
-		        paragraph "Light is currently ${lightswitch.latestValue('switch')}."
+                if (state.humiditytrend == "up"){ paragraph "Humidity is ${state.lastHumidity}% and rising. ${state.lastHumidityTimeStamp}" }
+                if (state.humiditytrend == "down"){ paragraph "Humidity is ${state.lastHumidity}% and falling. ${state.lastHumidityTimeStamp}" }
+                if (state.humiditytrend == "stay"){ paragraph "Humidity is ${state.lastHumidity}%. ${state.lastHumidityTimeStamp}" }
+		        paragraph "Light is currently ${lightswitch.latestValue('switch')}. ${state.lastSwitchTimeStamp}"
                 if (!(fanswitch == null)) {
-                    paragraph "Fan is currently ${lightswitch.latestValue('switch')}."
+                    paragraph "Fan is currently ${fanswitch.latestValue('switch')}. ${state.lastFanTimeStamp}"
                 }
                 paragraph "Using ${state.mode} based timer."
-                paragraph ""
 		    } else {
                 paragraph "Not configured, please configure."
                 paragraph ""
@@ -142,12 +141,13 @@ def updated() {
 
 
 def initialize() {
-    state.appversion = "1.0.2-Beta3"
+    state.appversion = "1.0.2-Beta5"
     state.loglevel = 2 //0 = off, 1 = on, 2 = debug
     //Subscribe to device events
     subscribe(lightswitch, "switch", SwitchEvent)
     subscribe(motionSensor, "motion", MotionEvent)
     subscribe(humiditySensor, "humidity", HumidityEvent)
+    subscribe(fanswitch, "switch", FanEvent)
     //Init state variables
     state.averagehumiditymaxpollcount = settings.humiditypollsforaverage //How many polls should we base our average off of?
     if (state.averagehumiditycurrentpollcount == null) { state.averagehumiditycurrentpollcount = 0 }
@@ -171,12 +171,17 @@ def initialize() {
     if (state.offtime == null) { state.offtime = settings.motionOff * 60 }
     if (state.scheduled == null) { state.scheduled = false }
     if (state.lightswitchlastValue == null) { state.lightswitchlastValue = lightswitch.latestValue('switch') }
-    if (state.loglevel == 2){DEBUG("Initialized")}
+    if (state.lastHumidityTimeStamp == null) { state.lastHumidityTimeStamp = "" }
+    if (state.lastSwitchTimeStamp == null) { state.lastSwitchTimeStamp = "" }
+    if (state.lastMotionTimeStamp == null) { state.lastMotionTimeStamp = "" }
+    if (state.lastFanTimeStamp == null) { state.lastFanTimeStamp = "" }
     state.installed = true
+    if (state.loglevel == 2){DEBUG("Initialized")}
 }
 
 
 def SwitchEvent(evt) {
+    state.lastSwitchTimeStamp = "(" + timeStampMMDDHHmm() + ")"
     if (!(fanswitch == null)) {
         //If Humidity is high and fan is configured, turn fan on, back off when it reaches the average
         if (state.lastHumidity > state.averageHumidity){
@@ -253,6 +258,7 @@ def SwitchEvent(evt) {
 
 
 def MotionEvent(evt) {
+    state.lastMotionTimeStamp = "(" + timeStampMMDDHHmm() + ")"
     if (state.loglevel == 2){DEBUG("Motion Sensor | ${evt.value}, LastTrigger:${state.trigger}")}
     if (evt.value == "inactive" && state.lastMotionStatus == "active") {
         //Motion is inactive
@@ -288,10 +294,11 @@ def MotionEvent(evt) {
 
 
 def HumidityEvent(evt) {
+    state.lastHumidityTimeStamp = "(" + timeStampMMDDHHmm() + ")"
     def currentHumidity = Double.parseDouble(evt.value.replace("%", ""))
     state.humiditytrend = "stay"
-    if ((currentHumidity > state.lastHumidity) && (currentHumidity - state.lastHumidity > 0.5)) { state.humiditytrend = "up" }
-    if ((currentHumidity < state.lastHumidity) && (state.lastHumidity - currentHumidity > 0.5)) { state.humiditytrend = "down" }
+    if ((currentHumidity > state.lastHumidity) && (currentHumidity - state.lastHumidity > 1)) { state.humiditytrend = "up" }
+    if ((currentHumidity < state.lastHumidity) && (state.lastHumidity - currentHumidity > 1)) { state.humiditytrend = "down" }
     if (!(state.averageHumidity > 0)) { state.humiditytrend = "stay" } //AverageHumidity hasn't been established yet; stay.
     if (state.loglevel == 2){DEBUG("Humidity Sensor | Current(${currentHumidity}),last(${state.lastHumidity}),trend(${state.humiditytrend})")}
     state.lastHumidity = currentHumidity
@@ -352,6 +359,11 @@ def HumidityEvent(evt) {
 }
 
 
+def FanEvent(evt){
+    state.lastFanTimeStamp = "(" + timeStampMMDDHHmm() + ")"
+}
+
+
 def lightsOn() {
 	TRACE("BLC: lightsOn()")
 	lightswitch.on()
@@ -383,4 +395,19 @@ def TRACE(message){
 
 def DEBUG(message){
   log.debug("BLC: ${message}")
+}
+
+
+def timeStampHHmm(){
+  return (new Date(now())).format("HH:mm", location.timeZone)
+}
+
+
+def timeStampHHmmss(){
+  return (new Date(now())).format("HH:mm:ss", location.timeZone)
+}
+
+
+def timeStampMMDDHHmm(){
+  return (new Date(now())).format("MMM dd HH:mm", location.timeZone)
 }
