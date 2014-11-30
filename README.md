@@ -10,7 +10,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 #Description
 SmartThings app to control bathroom lights based on motion / humidity <br />
-Version 1.0.2-Beta1
+Version 1.0.2-Beta2
 
 An app for SmartThings that will turn on a bathroom light based on motion, start a timer <br />
 and turn the light off after motion has stopped for a period of time (5 minutes by default); however <br />
@@ -43,3 +43,5 @@ adjust the timer if it appears that humidity is rising in the room (ie: Shower i
   * Modified logged data to better detect where we are in code based on Trace/Debug log.
   * Added logging level option in code.  0 = off, 1 = on, 2 = debug.  Configured by changing variable in initialize()
   * General code cleanup (tabs/spacing, commenting, etc)
+*1.0.2-Beta2
+  * Adjusted trending determination threshold from +/- 1% to +/- 0.5%
