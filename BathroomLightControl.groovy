@@ -1,7 +1,6 @@
 /**
  *  Bathroom Light/Fan Control
- *  WARNING: This version is in testing
- * 
+  * 
  *  Controls bathroom lights:
  *  -- Turn on light when motion is detected.
  *  -- Turn off bathroom light after x minutes of no motion detection
@@ -32,8 +31,7 @@
  *  The latest version of this file can be found on GitHub at:
  *  http://github.com/rayzurbock/SmartThings-BathroomLightControl
  * 
- *  Version 1.0.2-Beta5 (2014-11-29)
- *  WARNING: This version is in testing
+ *  Version 1.0.2 (2014-11-29)
  
  */definition(
     name: "Bathroom Light/Fan Control",
@@ -141,7 +139,7 @@ def updated() {
 
 
 def initialize() {
-    state.appversion = "1.0.2-Beta5"
+    state.appversion = "1.0.2"
     state.loglevel = 2 //0 = off, 1 = on, 2 = debug
     //Subscribe to device events
     subscribe(lightswitch, "switch", SwitchEvent)
